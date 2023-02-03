@@ -94,7 +94,7 @@ function keepalive() {
     } else console.log("请求错误: " + error);
   });
 }
-setInterval(keepalive, 30 * 1000);
+setInterval(keepalive, 40 * 1000);
 /* keepalive  end */
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
