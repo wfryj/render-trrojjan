@@ -102,7 +102,7 @@ app.use(
   })
 );
 
-//以下是ssh.js模块的路由重写
+//以下3个是ssh.js模块的路由重写
 app.use(
   "/ssh",
   createProxyMiddleware({
@@ -112,6 +112,38 @@ app.use(
     pathRewrite: {
       // 请求中去除/ssh
       "^/ssh": "/",
+    },
+    onProxyReq: function onProxyReq(proxyReq, req, res) {
+      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
+    },
+  })
+);
+
+app.use(
+  "/js",
+  createProxyMiddleware({
+    target: "http://127.0.0.1:8082/", // 需要跨域处理的请求地址
+    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
+    ws: true, // 是否代理websockets
+    pathRewrite: {
+      // 请求中去除/js
+      "^/js": "/js",
+    },
+    onProxyReq: function onProxyReq(proxyReq, req, res) {
+      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
+    },
+  })
+);
+
+app.use(
+  "/auth_token.js",
+  createProxyMiddleware({
+    target: "http://127.0.0.1:8082/", // 需要跨域处理的请求地址
+    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
+    ws: true, // 是否代理websockets
+    pathRewrite: {
+      // 请求中去除/auth_token.js
+      "^/auth_token.js": "/auth_token.js",
     },
     onProxyReq: function onProxyReq(proxyReq, req, res) {
       //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
