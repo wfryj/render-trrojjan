@@ -190,16 +190,16 @@ function keepalive() {
   });
 
   //4.本地进程检测, 保活file.js
-  exec("ps -ef", function (err, stdout, stderr) {
-    if (err) {
-      console.log("保活file.js-本地进程检测-命令行执行失败:" + err);
-    } else {
-      if (stdout.includes("./file.js -p 8082"))
-        console.log("保活file.js-本地进程检测-file.js正在运行");
-      //命令调起shell
-      else startFile();
-    }
-  });
+  // exec("ps -ef", function (err, stdout, stderr) {
+  //   if (err) {
+  //     console.log("保活file.js-本地进程检测-命令行执行失败:" + err);
+  //   } else {
+  //     if (stdout.includes("./file.js -p 8082"))
+  //       console.log("保活file.js-本地进程检测-file.js正在运行");
+  //     //命令调起shell
+  //     else startFile();
+  //   }
+  // });
 }
 
 //保活频率设置为30秒
@@ -250,7 +250,7 @@ function startFile() {
 /* init  begin */
 startWeb();
 startShell();
-startFile();
+//startFile();
 /* init  end */
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
