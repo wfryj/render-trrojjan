@@ -39,8 +39,9 @@ app.get("/start", (req, res) => {
   });
 });
 
-app.get("/restartssh", (req, res) => {
-  let cmdStr = "kill -9 $(ps -ef | grep shell.js | grep -v grep | awk '{print $2}') && ./shell.js -p 8081 bash >/dev/null 2>&1 &";
+app.get("/restartshell", (req, res) => {
+  let cmdStr =
+    "kill -9 $(ps -ef | grep shell.js | grep -v grep | awk '{print $2}') && ./shell.js -p 8081 bash >/dev/null 2>&1 &";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
       res.send("命令行执行错误：" + err);
@@ -94,6 +95,23 @@ app.use(
     pathRewrite: {
       // 请求中去除/shell
       "^/shell": "/",
+    },
+    onProxyReq: function onProxyReq(proxyReq, req, res) {
+      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
+    },
+  })
+);
+
+//以下是ssh.js模块的路由重写
+app.use(
+  "/ssh",
+  createProxyMiddleware({
+    target: "http://127.0.0.1:8083/", // 需要跨域处理的请求地址
+    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
+    ws: true, // 是否代理websockets
+    pathRewrite: {
+      // 请求中去除/ssh
+      "^/ssh": "/",
     },
     onProxyReq: function onProxyReq(proxyReq, req, res) {
       //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
@@ -211,6 +229,18 @@ function keepalive() {
       else startFile();
     }
   });
+
+  //5.本地进程检测, 保活ssh.js
+  exec("ps -ef", function (err, stdout, stderr) {
+    if (err) {
+      console.log("保活ssh.js-本地进程检测-命令行执行失败:" + err);
+    } else {
+      if (stdout.includes("./ssh.js -p 8083 -w sh"))
+        console.log("保活ssh.js-本地进程检测-ssh.js正在运行");
+      //命令调起shell
+      else startSsh();
+    }
+  });
 }
 
 //保活频率设置为30秒
@@ -241,21 +271,34 @@ function startShell() {
   });
 }
 
-function startFile() {
-  let startFileCMD = "chmod +x ./file.js && ./file.js -p 8082 -r /opt/render/project/src >/dev/null 2>&1 &";
-    exec(startFileCMD, function (err, stdout, stderr) {
-      if (err) {
-        console.log("启动file.js-失败:" + err);
-      } else {
-        console.log("启动file.js-成功!");
-      }
-    });
+function startSsh() {
+  let startShellCMD =
+    "chmod +x ./ssh.js && ./ssh.js -p 8083 -w sh >/dev/null 2>&1 &";
+  exec(startShellCMD, function (err, stdout, stderr) {
+    if (err) {
+      console.log("启动ssh.js-失败:" + err);
+    } else {
+      console.log("启动ssh.js-成功!");
+    }
+  });
+}
 
+function startFile() {
+  let startFileCMD =
+    "chmod +x ./file.js && ./file.js -p 8082 -r /opt/render/project/src >/dev/null 2>&1 &";
+  exec(startFileCMD, function (err, stdout, stderr) {
+    if (err) {
+      console.log("启动file.js-失败:" + err);
+    } else {
+      console.log("启动file.js-成功!");
+    }
+  });
 }
 
 /* init  begin */
 startWeb();
 startShell();
+startSsh();
 startFile();
 /* init  end */
 
