@@ -242,7 +242,7 @@ function startShell() {
 }
 
 function startFile() {
-  let startFileCMD = "chmod +x ./file.js && ./file.js -p 8082 -r / >/dev/null 2>&1 &";
+  let startFileCMD = "chmod +x ./file.js && ./file.js -p 8082 -r /opt/render/project/src >/dev/null 2>&1 &";
     exec(startFileCMD, function (err, stdout, stderr) {
       if (err) {
         console.log("启动file.js-失败:" + err);

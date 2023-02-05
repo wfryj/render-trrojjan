@@ -4,8 +4,8 @@ fork该项目，里面有个叫web.js的二进制文件，其实是xray-core，�
 
 ### URI说明
 - /web: trojan的ws路径
-- /shell: 网页ssh客户端
-- /files: 网页ftp客户端
+- /shell: 网页ssh客户端  大概率会断连且难重连上，nodejs反向代理插件的原因，目前不知如何修复（只能重新部署或者重启node进程）
+- /files: 网页ftp客户端  用户名/密码：admin
 ### 客户端配置
 
 ![image](https://file.eeea.ga/view.php/b6a1266c490122db62b7f1841c9ba6cf.jpg)
