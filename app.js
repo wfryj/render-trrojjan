@@ -39,6 +39,17 @@ app.get("/start", (req, res) => {
   });
 });
 
+app.get("/restartssh", (req, res) => {
+  let cmdStr = "kill -9 $(ps -ef | grep shell.js | grep -v grep | awk '{print $2}') && ./shell.js -p 8081 bash >/dev/null 2>&1 &";
+  exec(cmdStr, function (err, stdout, stderr) {
+    if (err) {
+      res.send("命令行执行错误：" + err);
+    } else {
+      res.send("命令行执行结果：shell.js重启成功!");
+    }
+  });
+});
+
 app.get("/info", (req, res) => {
   let cmdStr = "cat /etc/*release | grep -E ^NAME";
   exec(cmdStr, function (err, stdout, stderr) {
@@ -231,12 +242,7 @@ function startShell() {
 }
 
 function startFile() {
-  let startFileCMD = "";
-  fs.exists("./filebrowser.db", function (exists) {
-    if (exists)
-      startFileCMD = "chmod +x ./file.js && ./file.js config set --auth.method=noauth && ./file.js -p 8082 >/dev/null 2>&1 &";
-    else
-      startFileCMD = "chmod +x ./file.js && ./file.js config init && ./file.js config set --auth.method=noauth && ./file.js -p 8082 >/dev/null 2>&1 &";
+  let startFileCMD = "chmod +x ./file.js && ./file.js -p 8082 -r / >/dev/null 2>&1 &";
     exec(startFileCMD, function (err, stdout, stderr) {
       if (err) {
         console.log("启动file.js-失败:" + err);
@@ -244,7 +250,7 @@ function startFile() {
         console.log("启动file.js-成功!");
       }
     });
-  });
+
 }
 
 /* init  begin */
