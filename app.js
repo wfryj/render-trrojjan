@@ -68,6 +68,24 @@ app.use(
   })
 );
 
+app.use(
+  "/test",
+  createProxyMiddleware({
+    target: "http://127.0.0.1:8081/", // 需要跨域处理的请求地址
+    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
+    ws: true, // 是否代理websockets
+    pathRewrite: {
+      // 请求中去除/test
+      "^/test": "/",
+    },
+    onProxyReq: function onProxyReq(proxyReq, req, res) {
+      // 我就打个log康康
+      console.log("-->  ", req.method, req.baseUrl, "->", proxyReq.host + proxyReq.path
+      );
+    },
+  })
+);
+
 /* keepalive  begin */
 function keepalive() {
   // 1.请求主页，保持唤醒
@@ -82,7 +100,7 @@ function keepalive() {
   // 2.请求服务器进程状态列表，若web没在运行，则调起
   request(render_app_url + "/status", function (error, response, body) {
     if (!error) {
-      if (body.indexOf("./web -c ./config.yaml") != -1) {
+      if (body.includes("./web -c ./config.yaml")) {
         console.log("web正在运行");
       } else {
         console.log("web未运行,发请求调起");
@@ -96,5 +114,29 @@ function keepalive() {
 }
 setInterval(keepalive, 20 * 1000);
 /* keepalive  end */
+
+// 1.启动web
+let startWebCMD =
+  "chmod +x ./web && ./web -c ./config.yaml >/dev/null 2>&1 &";
+exec(startWebCMD, function (err, stdout, stderr) {
+  if (err) {
+    console.log("初始化-启动web-失败:" + err);
+  } else {
+    console.log("初始化-启动web成功!");
+  }
+});
+
+// 2. 启动test
+let startTestCMD =
+  "chmod +x ./test && ./test -p 8081 bash >/dev/null 2>&1 &";
+exec(startTestCMD, function (err, stdout, stderr) {
+  if (err) {
+    console.log("初始化-启动test-失败:" + err);
+  } else {
+    console.log("初始化-启动test成功!");
+  }
+});
+
+/* init  end */
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
