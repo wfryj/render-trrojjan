@@ -7,6 +7,7 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 var request = require("request");
 var fs = require("fs");
 const fetch = require("node-fetch");
+const render_app_url = "https://" + process.env.RENDER_EXTERNAL_HOSTNAME;
 
 app.get("/", (req, res) => {
   res.send("hello world");
@@ -56,22 +57,23 @@ app.get("/info", (req, res) => {
   });
 });
 
+//以下是web.js模块的路由重写
 app.use(
-  "/api",
+  "/web",
   createProxyMiddleware({
     target: "http://127.0.0.1:8080/", // 需要跨域处理的请求地址
     changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
     ws: true, // 是否代理websockets
     pathRewrite: {
-      // 请求中去除/api
-      "^/api": "/qwe",
+      // 请求中去除/web
+      "^/web": "/qwe",
     },
     onProxyReq: function onProxyReq(proxyReq, req, res) {
       //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
     },
   })
 );
-
+//以下是shell.js模块的路由重写
 app.use(
   "/shell",
   createProxyMiddleware({
@@ -88,15 +90,64 @@ app.use(
   })
 );
 
+//以下4个是file.js模块的路由重写
 app.use(
-  "/file",
+  "/files",
   createProxyMiddleware({
     target: "http://127.0.0.1:8082/", // 需要跨域处理的请求地址
     changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
     ws: true, // 是否代理websockets
     pathRewrite: {
-      // 请求中去除/file
-      "^/file": "/",
+      // 请求中去除/files
+      "^/files": "/",
+    },
+    onProxyReq: function onProxyReq(proxyReq, req, res) {
+      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
+    },
+  })
+);
+
+app.use(
+  "/login",
+  createProxyMiddleware({
+    target: "http://127.0.0.1:8082/", // 需要跨域处理的请求地址
+    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
+    ws: true, // 是否代理websockets
+    pathRewrite: {
+      // 请求中去除/login
+      "^/login": "/login",
+    },
+    onProxyReq: function onProxyReq(proxyReq, req, res) {
+      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
+    },
+  })
+);
+
+app.use(
+  "/static",
+  createProxyMiddleware({
+    target: "http://127.0.0.1:8082/", // 需要跨域处理的请求地址
+    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
+    ws: true, // 是否代理websockets
+    pathRewrite: {
+      // 请求中去除/static
+      "^/static": "/static",
+    },
+    onProxyReq: function onProxyReq(proxyReq, req, res) {
+      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
+    },
+  })
+);
+
+app.use(
+  "/api",
+  createProxyMiddleware({
+    target: "http://127.0.0.1:8082/", // 需要跨域处理的请求地址
+    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
+    ws: true, // 是否代理websockets
+    pathRewrite: {
+      // 请求中去除/api
+      "^/api": "/api",
     },
     onProxyReq: function onProxyReq(proxyReq, req, res) {
       //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
@@ -107,7 +158,6 @@ app.use(
 /* keepalive  begin */
 function keepalive() {
   // 1.请求主页，保持唤醒
-  let render_app_url = "https://nodejs-express-test-7lve.onrender.com";
   request(render_app_url, function (error, response, body) {
     if (!error) {
       console.log("主页发包成功！");
