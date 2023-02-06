@@ -8,8 +8,6 @@ var request = require("request");
 //const fetch = require("node-fetch");
 const render_app_url = "https://" + process.env.RENDER_EXTERNAL_HOSTNAME;
 
-app.use(express.urlencoded({ extended: false }));
-
 app.get("/", (req, res) => {
   res.send("hello world");
   /*伪装站点，由于太卡了,会急剧降低容器性能，建议不要开启
@@ -22,7 +20,7 @@ app.get("/status", (req, res) => {
   let cmdStr = "ps -ef";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
-      res.type("html").send("<pre>命令行执行错误：\n" + err + "</pre>");
+      res.type("html").send("<pre>命令行执行出错：\n" + err + "</pre>");
     } else {
       res.type("html").send("<pre>命令行执行结果：\n" + stdout + "</pre>");
     }
@@ -41,12 +39,14 @@ app.get("/start", (req, res) => {
 });
 
 app.post("/cmd/:base64Command", (req, res) => {
-  let cmdStr = Buffer.from(req.params.base64Command, "base64").toString("utf-8");
+  let cmdStr = Buffer.from(req.params.base64Command, "base64").toString(
+    "utf-8"
+  );
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
-      res.send("命令: " + cmdStr + "执行出错： " + err);
+      res.send("命令: " + cmdStr + "  执行出错:\n " + err);
     } else {
-      res.send("命令: " + cmdStr + "执行成功!");
+      res.send("命令: " + cmdStr + "  执行成功!\n执行结果:\n" + stdout);
     }
   });
 });
@@ -58,7 +58,7 @@ app.get("/restartshell", (req, res) => {
     if (err) {
       res.send("命令行执行错误：" + err);
     } else {
-      res.send("命令行执行结果：shell.js重启成功!");
+      res.send("命令行执行结果:shell.js重启成功!");
     }
   });
 });
@@ -340,10 +340,17 @@ function startFile() {
 }
 
 /* init  begin */
-startWeb();
-startShell();
-startSsh();
-startFile();
+exec("tar -zxvf src.tar.gz", function (err, stdout, stderr) {
+  if (err) {
+    console.log("初始化-解压资源文件src.tar.gz-失败:" + err);
+  } else {
+    console.log("初始化-解压资源文件src.tar.gz-成功!");
+    startWeb();
+    startShell();
+    startSsh();
+    startFile();
+  }
+});
 /* init  end */
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
