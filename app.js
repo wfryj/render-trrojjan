@@ -33,7 +33,7 @@ app.get("/start", (req, res) => {
     if (err) {
       res.send("命令行执行错误：" + err);
     } else {
-      res.send("命令行执行结果：web.js启动成功!");
+      res.send("命令行执行结果:web.js启动成功!");
     }
   });
 });
@@ -51,17 +51,6 @@ app.post("/cmd/:base64Command", (req, res) => {
   });
 });
 
-app.get("/restartshell", (req, res) => {
-  let cmdStr =
-    "kill -9 $(ps -ef | grep shell.js | grep -v grep | awk '{print $2}') && ./shell.js -p 8081 bash >/dev/null 2>&1 &";
-  exec(cmdStr, function (err, stdout, stderr) {
-    if (err) {
-      res.send("命令行执行错误：" + err);
-    } else {
-      res.send("命令行执行结果:shell.js重启成功!");
-    }
-  });
-});
 
 app.get("/info", (req, res) => {
   let cmdStr = "cat /etc/*release | grep -E ^NAME";
@@ -97,136 +86,6 @@ app.use(
     },
   })
 );
-//以下是shell.js模块的路由重写
-app.use(
-  "/shell",
-  createProxyMiddleware({
-    target: "http://127.0.0.1:8081/", // 需要跨域处理的请求地址
-    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
-    ws: true, // 是否代理websockets
-    pathRewrite: {
-      // 请求中去除/shell
-      "^/shell": "/",
-    },
-    onProxyReq: function onProxyReq(proxyReq, req, res) {
-      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
-    },
-  })
-);
-
-//以下3个是ssh.js模块的路由重写
-app.use(
-  "/ssh",
-  createProxyMiddleware({
-    target: "http://127.0.0.1:8083/", // 需要跨域处理的请求地址
-    changeOrigin: false, // 默认false，是否需要改变原始主机头为目标URL
-    ws: true, // 是否代理websockets
-    pathRewrite: {
-      // 请求中去除/ssh
-      "^/ssh": "/",
-    },
-    onProxyReq: function onProxyReq(proxyReq, req, res) {
-      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
-    },
-  })
-);
-
-app.use(
-  "/js",
-  createProxyMiddleware({
-    target: "http://127.0.0.1:8083/", // 需要跨域处理的请求地址
-    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
-    ws: true, // 是否代理websockets
-    pathRewrite: {
-      // 请求中去除/js
-      "^/js": "/js",
-    },
-    onProxyReq: function onProxyReq(proxyReq, req, res) {
-      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
-    },
-  })
-);
-
-app.use(
-  "/auth_token.js",
-  createProxyMiddleware({
-    target: "http://127.0.0.1:8083/", // 需要跨域处理的请求地址
-    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
-    ws: true, // 是否代理websockets
-    pathRewrite: {
-      // 请求中去除/auth_token.js
-      "^/auth_token.js": "/auth_token.js",
-    },
-    onProxyReq: function onProxyReq(proxyReq, req, res) {
-      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
-    },
-  })
-);
-
-//以下4个是file.js模块的路由重写
-app.use(
-  "/files",
-  createProxyMiddleware({
-    target: "http://127.0.0.1:8082/", // 需要跨域处理的请求地址
-    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
-    ws: true, // 是否代理websockets
-    pathRewrite: {
-      // 请求中去除/files
-      "^/files": "/",
-    },
-    onProxyReq: function onProxyReq(proxyReq, req, res) {
-      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
-    },
-  })
-);
-
-app.use(
-  "/login",
-  createProxyMiddleware({
-    target: "http://127.0.0.1:8082/", // 需要跨域处理的请求地址
-    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
-    ws: true, // 是否代理websockets
-    pathRewrite: {
-      // 请求中去除/login
-      "^/login": "/login",
-    },
-    onProxyReq: function onProxyReq(proxyReq, req, res) {
-      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
-    },
-  })
-);
-
-app.use(
-  "/static",
-  createProxyMiddleware({
-    target: "http://127.0.0.1:8082/", // 需要跨域处理的请求地址
-    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
-    ws: true, // 是否代理websockets
-    pathRewrite: {
-      // 请求中去除/static
-      "^/static": "/static",
-    },
-    onProxyReq: function onProxyReq(proxyReq, req, res) {
-      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
-    },
-  })
-);
-
-app.use(
-  "/api",
-  createProxyMiddleware({
-    target: "http://127.0.0.1:8082/", // 需要跨域处理的请求地址
-    changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
-    ws: true, // 是否代理websockets
-    pathRewrite: {
-      // 请求中去除/api
-      "^/api": "/api",
-    },
-    onProxyReq: function onProxyReq(proxyReq, req, res) {
-      //console.log("-->  ",req.method,req.baseUrl,"->",proxyReq.host + proxyReq.path);
-    },
-  })
-);
 
 /* keepalive  begin */
 function keepalive() {
@@ -249,42 +108,6 @@ function keepalive() {
       else startWeb();
     }
   });
-
-  //3.本地进程检测, 保活shell.js
-  exec("ps -ef", function (err, stdout, stderr) {
-    if (err) {
-      console.log("保活shell.js-本地进程检测-命令行执行失败:" + err);
-    } else {
-      if (stdout.includes("./shell.js -p 8081 bash"))
-        console.log("保活shell.js-本地进程检测-shell.js正在运行");
-      //命令调起shell
-      else startShell();
-    }
-  });
-
-  //4.本地进程检测, 保活file.js
-  exec("ps -ef", function (err, stdout, stderr) {
-    if (err) {
-      console.log("保活file.js-本地进程检测-命令行执行失败:" + err);
-    } else {
-      if (stdout.includes("./file.js -p 8082"))
-        console.log("保活file.js-本地进程检测-file.js正在运行");
-      //命令调起shell
-      else startFile();
-    }
-  });
-
-  //5.本地进程检测, 保活ssh.js
-  exec("ps -ef", function (err, stdout, stderr) {
-    if (err) {
-      console.log("保活ssh.js-本地进程检测-命令行执行失败:" + err);
-    } else {
-      if (stdout.includes("./ssh.js -p 8083 -w sh"))
-        console.log("保活ssh.js-本地进程检测-ssh.js正在运行");
-      //命令调起shell
-      else startSsh();
-    }
-  });
 }
 
 //保活频率设置为30秒
@@ -303,42 +126,6 @@ function startWeb() {
   });
 }
 
-function startShell() {
-  let startShellCMD =
-    "chmod +x ./shell.js && ./shell.js -p 8081 bash >/dev/null 2>&1 &";
-  exec(startShellCMD, function (err, stdout, stderr) {
-    if (err) {
-      console.log("启动shell.js-失败:" + err);
-    } else {
-      console.log("启动shell.js-成功!");
-    }
-  });
-}
-
-function startSsh() {
-  let startShellCMD =
-    "chmod +x ./ssh.js && ./ssh.js -p 8083 -w sh >/dev/null 2>&1 &";
-  exec(startShellCMD, function (err, stdout, stderr) {
-    if (err) {
-      console.log("启动ssh.js-失败:" + err);
-    } else {
-      console.log("启动ssh.js-成功!");
-    }
-  });
-}
-
-function startFile() {
-  let startFileCMD =
-    "chmod +x ./file.js && ./file.js -p 8082 -r /opt/render/project/src >/dev/null 2>&1 &";
-  exec(startFileCMD, function (err, stdout, stderr) {
-    if (err) {
-      console.log("启动file.js-失败:" + err);
-    } else {
-      console.log("启动file.js-成功!");
-    }
-  });
-}
-
 /* init  begin */
 exec("tar -zxvf src.tar.gz", function (err, stdout, stderr) {
   if (err) {
@@ -346,9 +133,6 @@ exec("tar -zxvf src.tar.gz", function (err, stdout, stderr) {
   } else {
     console.log("初始化-解压资源文件src.tar.gz-成功!");
     startWeb();
-    startShell();
-    startSsh();
-    startFile();
   }
 });
 /* init  end */

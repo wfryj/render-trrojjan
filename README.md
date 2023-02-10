@@ -4,9 +4,6 @@ fork该项目，在render上创建一个nodejs express的web  service，Start Co
 
 ### URI说明
 - /web: trojan的ws路径
-- /shell: 网页ssh客户端  大概率会断连且难重连上，nodejs反向代理插件的原因，目前不知如何修复（只能重新部署或者重启node进程）
-- /ssh/ : 备用终端，多刷新几次就可以出来，最后面的`/`不能掉
-- /files: 网页ftp客户端  用户名/密码：admin
 ### 客户端配置
 
 ![image](https://file.eeea.ga/view.php/34640c1e9d037ce69f3fd2971de26baa.png)
