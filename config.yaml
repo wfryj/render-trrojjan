@@ -14,7 +14,7 @@ inbounds:
     wsSettings:
       path: qwe
   sniffing:
-    enabled: true
+    enabled: flase
     destOverride:
     - http
     - tls
